@@ -13,7 +13,7 @@ spaces = skipMany1 space
 readExpr :: String -> String
 readExpr input = case parse parseExpr "lisp" input of
                    Left err -> "No match: " ++ show err
-                   Right val -> "Found value"
+                   Right val -> "Found " ++ show val
 
 data LispVal = Atom String
              | List [LispVal]
@@ -21,6 +21,18 @@ data LispVal = Atom String
              | Number Integer
              | String String
              | Bool Bool
+
+instance Show LispVal where
+  show (String contents) = "\"" ++ contents ++ "\""
+  show (Atom name) = name
+  show (Number contents) = show contents
+  show (Bool True) = "#t"
+  show (Bool False) = "#f"
+  show (List contents) = "(" ++ unwordsList contents ++ ")"
+  show (DottedList head tail) = "(" ++ unwordsList head ++ " . " ++ show tail ++ ")"
+
+unwordsList :: [LispVal] -> String
+unwordsList = unwords . map show
 
 parseString :: Parser LispVal
 parseString = do
